@@ -238,24 +238,40 @@
       }
     }
 
-    function draw_line(){
+    function draw_line() {
+      let lines = [];
+    
       for (let i = 0; i < particles.length; i++) {
-        for (let j = i+1; j < particles.length; j++) {
+        for (let j = i + 1; j < particles.length; j++) {
           if (merge(particles[i].text, particles[j].text) != -1) {
-            let strength = 155 - distance(particles[i].x, particles[i].y, particles[j].x, particles[j].y)/window.innerHeight*100;
-
-            context.shadowBlur = 0;
-            context.beginPath();
-            context.strokeStyle = "rgba("+String(strength)+", "+String(strength)+", "+String(strength)+", 0.5)";
-            if(particles[i] == draggedParticle || particles[j] == draggedParticle) context.strokeStyle = "rgba("+String(strength+100)+", "+String(strength+100)+", "+String(strength+100)+", 0.5)";
-            context.lineWidth = 2;
-            context.moveTo(particles[i].x, particles[i].y);
-            context.lineTo(particles[j].x, particles[j].y);
-            context.stroke();
+            let strength = 155 - distance(particles[i].x, particles[i].y, particles[j].x, particles[j].y) / window.innerHeight * 100;
+            let line = {
+              p1: particles[i],
+              p2: particles[j],
+              strength: strength
+            };
+            lines.push(line);
           }
         }
       }
+    
+      lines.sort((a, b) => a.strength - b.strength);
+    
+      for (let line of lines) {
+        let { p1, p2, strength } = line;
+        context.shadowBlur = 0;
+        context.beginPath();
+        context.strokeStyle = "rgba(" + String(strength) + ", " + String(strength) + ", " + String(strength) + ", 0.5)";
+        if (p1 == draggedParticle || p2 == draggedParticle) {
+          context.strokeStyle = "rgba(" + String(strength + 100) + ", " + String(strength + 100) + ", " + String(strength + 100) + ", 0.5)";
+        }
+        context.lineWidth = 2;
+        context.moveTo(p1.x, p1.y);
+        context.lineTo(p2.x, p2.y);
+        context.stroke();
+      }
     }
+
 
     function mergeParticles(i, j) {
       let mergedX = (particles[i].x + particles[j].x) / 2;
